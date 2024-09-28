@@ -60,7 +60,7 @@ func handleListEmails(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var email Email
 		if err := rows.Scan(&email.MailID, &email.From, &email.To, &email.Subject, &email.Body); err != nil {
-      log.Fatalf("failed to scan email with id %d for : %v", email.MailID,err)
+			log.Fatalf("failed to scan email with id %d for : %v", email.MailID, err)
 			http.Error(w, "Error scanning emails", http.StatusInternalServerError)
 			return
 		}
@@ -98,13 +98,14 @@ func main() {
 
 	values := "(CURRENT_TIMESTAMP, ?, ?, ?, ? , ?, 0, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?)"
 	bcfg := backends.BackendConfig{
-		"save_process":      "sql",
-		"mail_table":        "emails",
-		"primary_mail_host": "example.com",
-		"sql_driver":        "sqlite3",
-		"sql_dsn":           "./sqlite3.db",
-		"sql_insert":        sqlstr,
-		"sql_values":        values,
+		"save_process":       "sql|Debugger|headersParser",
+		"mail_table":         "emails",
+		"primary_mail_host":  "*",
+		"log_received_mails": true,
+		"sql_driver":         "sqlite3",
+		"sql_dsn":            "./sqlite3.db",
+		"sql_insert":         sqlstr,
+		"sql_values":         values,
 	}
 	cfg.BackendConfig = bcfg
 
@@ -117,7 +118,7 @@ func main() {
 		setupRouters()
 
 		log.Println("Start HTTP server on:8080 ...")
-		if err := http.ListenAndServe(":8080", nil); err != nil {
+		if err := http.ListenAndServe(":8083", nil); err != nil {
 			log.Fatalf("Http server failed %s", err)
 		}
 	}()
